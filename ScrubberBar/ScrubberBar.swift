@@ -21,7 +21,7 @@
 
 import UIKit
 
-protocol ScrubberBarDelegate: class {
+public protocol ScrubberBarDelegate: class {
     func scrubberBar(bar: ScrubberBar, didScrubToProgress: Float)
 }
 
@@ -33,48 +33,48 @@ private extension Comparable {
 }
 
 @IBDesignable
-class ScrubberBar: UIControl {
+public class ScrubberBar: UIControl {
     
     @IBInspectable
-    var scrubberWidth: Float = 4.0{
+    public var scrubberWidth: Float = 4.0{
         didSet{
             setNeedsLayout()
         }
     }
     
     @IBInspectable
-    var dragIndicatorColor: UIColor = .lightGrayColor() {
+    public var dragIndicatorColor: UIColor = .lightGrayColor() {
         didSet{
             setupColor()
         }
     }
     
     @IBInspectable
-    var barColor: UIColor = .lightGrayColor() {
+    public var barColor: UIColor = .lightGrayColor() {
         didSet{
             setupColor()
         }
     }
     
     @IBInspectable
-    var elapsedColor: UIColor = .darkGrayColor() {
+    public var elapsedColor: UIColor = .darkGrayColor() {
         didSet{
             setupColor()
         }
     }
     
     @IBInspectable
-    var verticalBarScale: Float = 1.0{
+    public var verticalBarScale: Float = 1.0{
         didSet{
             setNeedsLayout()
         }
     }
     
     @IBInspectable
-    var scrubbingEnabled: Bool = true
+    public var scrubbingEnabled: Bool = true
     
     @IBInspectable
-    var showDragArea: Bool = true{
+    public var showDragArea: Bool = true{
         didSet{
             setNeedsLayout()
         }
@@ -86,26 +86,26 @@ class ScrubberBar: UIControl {
     let topBar = UIView(frame: CGRectZero)
     let elapsedBar = UIView(frame: CGRectZero)
     var isDragging = false
-    weak var delegate: ScrubberBarDelegate?
+    public weak var delegate: ScrubberBarDelegate?
     
     override init(frame: CGRect) {
         super.init(frame:frame)
         commonSetup()
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         commonSetup()
     }
     
-    func setProgress(progress: Float){
+    public func setProgress(progress: Float){
         if !isDragging {
             self.progress = progress
             setNeedsLayout()
         }
     }
     
-    override func prepareForInterfaceBuilder() {
+    public override func prepareForInterfaceBuilder() {
         commonSetup()
     }
     
@@ -146,7 +146,7 @@ class ScrubberBar: UIControl {
         return (position / Float(frame.width)).clamped(0, upper: 1)
     }
     
-    override func layoutSubviews(){
+    public override func layoutSubviews(){
         super.layoutSubviews()
         let horizontalPosition = positionFromProgress(progress)
         draggerButton.frame = CGRectMake(CGFloat(horizontalPosition) , 0, CGFloat(scrubberWidth), frame.height)
