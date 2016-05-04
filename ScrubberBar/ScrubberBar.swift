@@ -25,7 +25,7 @@ protocol ScrubberBarDelegate: class {
     func scrubberBar(bar: ScrubberBar, didScrubToProgress: Float)
 }
 
-extension Comparable {
+private extension Comparable {
     func clamped<T: Comparable>(lower: T, upper: T) -> T {
         let value = self as! T
         return min(max(value, lower), upper)
@@ -37,6 +37,44 @@ class ScrubberBar: UIControl {
     
     @IBInspectable
     var scrubberWidth: Float = 4.0{
+        didSet{
+            setNeedsLayout()
+        }
+    }
+    
+    @IBInspectable
+    var dragIndicatorColor: UIColor = .lightGrayColor() {
+        didSet{
+            setupColor()
+        }
+    }
+    
+    @IBInspectable
+    var barColor: UIColor = .lightGrayColor() {
+        didSet{
+            setupColor()
+        }
+    }
+    
+    @IBInspectable
+    var elapsedColor: UIColor = .darkGrayColor() {
+        didSet{
+            setupColor()
+        }
+    }
+    
+    @IBInspectable
+    var verticalBarScale: Float = 1.0{
+        didSet{
+            setNeedsLayout()
+        }
+    }
+    
+    @IBInspectable
+    var scrubbingEnabled: Bool = true
+    
+    @IBInspectable
+    var showDragArea: Bool = true{
         didSet{
             setNeedsLayout()
         }
@@ -79,9 +117,9 @@ class ScrubberBar: UIControl {
     
     func setupColor(){
         backgroundColor = .clearColor()
-        draggerButton.backgroundColor = UIColor.redColor()
-        topBar.backgroundColor = UIColor.lightGrayColor()
-        elapsedBar.backgroundColor = UIColor.darkGrayColor()
+        draggerButton.backgroundColor = dragIndicatorColor
+        topBar.backgroundColor = barColor
+        elapsedBar.backgroundColor = elapsedColor
     }
     
     func addSubviews(){
@@ -94,9 +132,9 @@ class ScrubberBar: UIControl {
         draggerButton.userInteractionEnabled = false
         topBar.userInteractionEnabled = false
         elapsedBar.userInteractionEnabled = false
-        addTarget(self, action: Selector("touchStarted"), forControlEvents: .TouchDown)
-        addTarget(self, action: Selector("touchEnded"), forControlEvents: .TouchUpInside)
-        addTarget(self, action: Selector("touchMoved:event:"), forControlEvents: .TouchDragInside)
+        addTarget(self, action: .touchStarted, forControlEvents: .TouchDown)
+        addTarget(self, action: .touchEnded, forControlEvents: .TouchUpInside)
+        addTarget(self, action: .touchMoved, forControlEvents: .TouchDragInside)
     }
     
     func positionFromProgress(progress: Float) -> Float{
@@ -112,9 +150,10 @@ class ScrubberBar: UIControl {
         super.layoutSubviews()
         let horizontalPosition = positionFromProgress(progress)
         draggerButton.frame = CGRectMake(CGFloat(horizontalPosition) , 0, CGFloat(scrubberWidth), frame.height)
-        
-        topBar.frame = CGRectMake(0, 0, frame.width, frame.height/2.0)
-        elapsedBar.frame = CGRectMake(0, 0, CGFloat(horizontalPosition), frame.height/2.0)
+        draggerButton.hidden = !showDragArea
+        let barDivisor: CGFloat = CGFloat(1.0) / CGFloat(verticalBarScale)
+        topBar.frame = CGRectMake(0, 0, frame.width, frame.height / barDivisor)
+        elapsedBar.frame = CGRectMake(0, 0, CGFloat(horizontalPosition), frame.height / barDivisor)
     }
     
     func touchStarted(){
@@ -126,7 +165,7 @@ class ScrubberBar: UIControl {
     }
     
     func touchMoved(object: AnyObject, event:UIEvent){
-        if let touch = event.touchesForView(self)?.first {
+        if let touch = event.touchesForView(self)?.first where scrubbingEnabled == true {
             let pointInView = touch.locationInView(self)
             let progress = progressFromPosition(Float(pointInView.x))
             self.progress = progress
@@ -135,6 +174,11 @@ class ScrubberBar: UIControl {
             
         }
     }
-    
-    
+}
+
+
+private extension Selector {
+    static let touchStarted = #selector(ScrubberBar.touchStarted)
+    static let touchEnded =  #selector(ScrubberBar.touchEnded)
+    static let touchMoved =  #selector(ScrubberBar.touchMoved(_:event:))
 }
