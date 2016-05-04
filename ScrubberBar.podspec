@@ -20,5 +20,4 @@ Pod::Spec.new do |s|
  
   s.source_files = "ScrubberBar/**/*.{swift}"
  
-  s.resources = "ScrubberBar/**/*.{png,jpeg,jpg,storyboard,xib}"
 end
